@@ -14,9 +14,29 @@ import (
 func ValidateLintersConfig(lc config.LintersConfig, fldPath *field.Path) field.ErrorList {
 	fieldErrors := field.ErrorList{}
 
+	fieldErrors = append(fieldErrors, validateConditionsConfig(lc.Conditions, fldPath.Child("conditions"))...)
 	fieldErrors = append(fieldErrors, validateJSONTagsConfig(lc.JSONTags, fldPath.Child("jsonTags"))...)
 	fieldErrors = append(fieldErrors, validateOptionalOrRequiredConfig(lc.OptionalOrRequired, fldPath.Child("optionalOrRequired"))...)
 	fieldErrors = append(fieldErrors, validateRequiredFieldsConfig(lc.RequiredFields, fldPath.Child("requiredFields"))...)
+
+	return fieldErrors
+}
+
+// validateConditionsConfig is used to validate the configuration in the config.ConditionsConfig struct.
+func validateConditionsConfig(cc config.ConditionsConfig, fldPath *field.Path) field.ErrorList {
+	fieldErrors := field.ErrorList{}
+
+	switch cc.IsFirstField {
+	case "", config.ConditionsFirstFieldWarn, config.ConditionsFirstFieldIgnore:
+	default:
+		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("isFirstField"), cc.IsFirstField, fmt.Sprintf("invalid value, must be one of %q, %q or omitted", config.ConditionsFirstFieldWarn, config.ConditionsFirstFieldIgnore)))
+	}
+
+	switch cc.UseProtobuf {
+	case "", config.ConditionsUseProtobufSuggestFix, config.ConditionsUseProtobufWarn, config.ConditionsUseProtobufIgnore:
+	default:
+		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("useProtobuf"), cc.UseProtobuf, fmt.Sprintf("invalid value, must be one of %q, %q, %q or omitted", config.ConditionsUseProtobufSuggestFix, config.ConditionsUseProtobufWarn, config.ConditionsUseProtobufIgnore)))
+	}
 
 	return fieldErrors
 }

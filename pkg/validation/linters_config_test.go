@@ -30,6 +30,73 @@ var _ = Describe("LintersConfig", func() {
 			expectedErr: "",
 		}),
 
+		// ConditionsConfig validation
+		Entry("With a valid ConditionsConfig", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					IsFirstField: "",
+					UseProtobuf:  "",
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid ConditionsConfig IsFirstField: Warn", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					IsFirstField: config.ConditionsFirstFieldWarn,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid ConditionsConfig IsFirstField: Ignore", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					IsFirstField: config.ConditionsFirstFieldIgnore,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With an invalid ConditionsConfig IsFirstField", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					IsFirstField: "invalid",
+				},
+			},
+			expectedErr: "lintersConfig.conditions.isFirstField: Invalid value: \"invalid\": invalid value, must be one of \"Warn\", \"Ignore\" or omitted",
+		}),
+		Entry("With a valid ConditionsConfig UseProtobuf: SuggestFix", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					UseProtobuf: config.ConditionsUseProtobufSuggestFix,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid ConditionsConfig UseProtobuf: Warn", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					UseProtobuf: config.ConditionsUseProtobufWarn,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid ConditionsConfig UseProtobuf: Ignore", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					UseProtobuf: config.ConditionsUseProtobufIgnore,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With an invalid ConditionsConfig UseProtobuf", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				Conditions: config.ConditionsConfig{
+					UseProtobuf: "invalid",
+				},
+			},
+			expectedErr: "lintersConfig.conditions.useProtobuf: Invalid value: \"invalid\": invalid value, must be one of \"SuggestFix\", \"Warn\", \"Ignore\" or omitted",
+		}),
+
 		// JSONTagsConfig validation
 		Entry("With a valid JSONTagsConfig JSONTagRegex", validateLintersConfigTableInput{
 			config: config.LintersConfig{

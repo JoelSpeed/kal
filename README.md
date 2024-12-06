@@ -128,6 +128,41 @@ allowing for customisation or automatic copmilation of the project should it not
 
 # Linters
 
+## Conditions
+
+The `conditions` linter checks that `Conditions` fields in the API types are correctly formatted.
+The `Conditions` field should be a slice of `metav1.Condition` with the following tags and markers:
+
+```go
+// +listType=map
+// +listMapKey=type
+// +patchStrategy=merge
+// +patchMergeKey=type
+// +optional
+Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,opt,name=conditions"`
+```
+
+Conditions are idiomatically the first field within the status struct, and the linter will highlight when the Conditions are not the first field.
+
+### Configuration
+
+```yaml
+lintersConfig:
+  conditions:
+    isFirstField: Warn | Ignore # The policy for the Conditions field being the first field. Defaults to `Warn`.
+    useProtobuf: SuggestFix | Warn | Ignore # The policy for the protobuf tag on the Conditions field. Defaults to `SuggestFix`.
+```
+
+### Fixes (via standalone binary only)
+
+The `conditions` linter can automatically fix the tags on the `Conditions` field.
+When they do not match the expected format, the linter will suggest to update the tags to match the expected format.
+
+For CRDs, protobuf tags are not expected. By setting the `useProtobuf` configuration to `Ignore`, the linter will not suggest to add the protobuf tag to the `Conditions` field tags.
+
+The linter will also suggest to add missing markers.
+If any of the 5 markers in the example above are missing, the linter will suggest to add them directly above the field.
+
 ## CommentStart
 
 The `commentstart` linter checks that all comments in the API types start with the serialized form of the type they are commenting on.

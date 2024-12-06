@@ -2,6 +2,9 @@ package config
 
 // LintersConfig contains configuration for individual linters.
 type LintersConfig struct {
+	// conditions contains configuration for the conditions linter.
+	Conditions ConditionsConfig `json:"conditions"`
+
 	// jsonTags contains configuration for the jsontags linter.
 	JSONTags JSONTagsConfig `json:"jsonTags"`
 
@@ -10,6 +13,49 @@ type LintersConfig struct {
 
 	// requiredFields contains configuration for the requiredfields linter.
 	RequiredFields RequiredFieldsConfig `json:"requiredFields"`
+}
+
+// ConditionsFirstField is the policy for the conditions linter.
+type ConditionsFirstField string
+
+const (
+	// ConditionsFirstFieldWarn indicates that the conditions should be the first field in the struct.
+	ConditionsFirstFieldWarn ConditionsFirstField = "Warn"
+
+	// ConditionsFirstFieldIgnore indicates that the conditions do not need to be the first field in the struct.
+	ConditionsFirstFieldIgnore ConditionsFirstField = "Ignore"
+)
+
+// ConditionsUseProtobuf is the policy for the conditions linter.
+type ConditionsUseProtobuf string
+
+const (
+	// ConditionsUseProtobufSuggestFix indicates that the linter will emit a warning if the conditions are not using protobuf tags and suggest a fix.
+	ConditionsUseProtobufSuggestFix ConditionsUseProtobuf = "SuggestFix"
+
+	// ConditionsUseProtobufWarn indicates that the linter will emit a warning if the conditions are not using protobuf tags.
+	ConditionsUseProtobufWarn ConditionsUseProtobuf = "Warn"
+
+	// ConditionsUseProtobufIgnore indicates that the linter will not emit a warning if the conditions are not using protobuf tags.
+	ConditionsUseProtobufIgnore ConditionsUseProtobuf = "Ignore"
+)
+
+// ConditionsConfig contains configuration for the conditions linter.
+type ConditionsConfig struct {
+	// isFirstField indicates whether the conditions should be the first field in the struct.
+	// Valid values are Warn and Ignore.
+	// When set to Warn, the linter will emit a warning if the conditions are not the first field in the struct.
+	// When set to Ignore, the linter will not emit a warning if the conditions are not the first field in the struct.
+	// When otherwise not specified, the default value is Warn.
+	IsFirstField ConditionsFirstField `json:"isFirstField"`
+
+	// useProtobuf indicates whether the linter should use protobuf tags.
+	// Valid values are SuggestFix, Warn and Ignore.
+	// When set to SuggestFix, the linter will emit a warning if the conditions are not using protobuf tags and suggest a fix.
+	// When set to Warn, the linter will emit a warning if the conditions are not using protobuf tags.
+	// When set to Ignore, the linter will not emit a warning if the conditions are not using protobuf tags.
+	// When otherwise not specified, the default value is SuggestFix.
+	UseProtobuf ConditionsUseProtobuf `json:"useProtobuf"`
 }
 
 // JSONTagsConfig contains configuration for the jsontags linter.

@@ -16,6 +16,7 @@ var _ = Describe("Registry", func() {
 		It("should return the default linters", func() {
 			r := analysis.NewRegistry()
 			Expect(r.DefaultLinters().UnsortedList()).To(ConsistOf(
+				"conditions",
 				"commentstart",
 				"jsontags",
 				"optionalorrequired",
@@ -28,6 +29,7 @@ var _ = Describe("Registry", func() {
 		It("should return the all known linters", func() {
 			r := analysis.NewRegistry()
 			Expect(r.AllLinters().UnsortedList()).To(ConsistOf(
+				"conditions",
 				"commentstart",
 				"jsontags",
 				"optionalorrequired",
