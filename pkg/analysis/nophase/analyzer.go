@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"strings"
 
+	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
@@ -12,7 +13,10 @@ import (
 
 const name = "nophase"
 
-var errCouldNotGetInspector = errors.New("could not get inspector")
+var (
+	errCouldNotGetInspector = errors.New("could not get inspector")
+	errCouldNotGetJSONTags  = errors.New("could not get json tags")
+)
 
 // Analyzer is the analyzer for the nophase package.
 // It checks that no struct fields named 'phase', or that contain phase as a
@@ -21,13 +25,18 @@ var Analyzer = &analysis.Analyzer{
 	Name:     name,
 	Doc:      "phase fields are deprecated and conditions should be preferred, avoid phase like enum fields",
 	Run:      run,
-	Requires: []*analysis.Analyzer{inspect.Analyzer},
+	Requires: []*analysis.Analyzer{inspect.Analyzer, extractjsontags.Analyzer},
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
 		return nil, errCouldNotGetInspector
+	}
+
+	jsonTags, ok := pass.ResultOf[extractjsontags.Analyzer].(extractjsontags.StructFieldTags)
+	if !ok {
+		return nil, errCouldNotGetJSONTags
 	}
 
 	// Filter to structs so that we can iterate over fields in a struct.
@@ -56,11 +65,25 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 			fieldName := field.Names[0].Name
 
+			// First check if the struct field name contains 'phase'
 			if strings.Contains(strings.ToLower(fieldName), "phase") {
 				pass.Reportf(field.Pos(),
 					"field %s: phase fields are deprecated and conditions should be preferred, avoid phase like enum fields",
 					fieldName,
 				)
+
+				continue
+			}
+
+			// Then check if the json serialization of the field contains 'phase'
+			tagInfo := jsonTags.FieldTags(sTyp, fieldName)
+
+			if strings.Contains(strings.ToLower(tagInfo.Name), "phase") {
+				pass.Reportf(field.Pos(),
+					"field %s: phase fields are deprecated and conditions should be preferred, avoid phase like enum fields",
+					fieldName,
+				)
+
 			}
 		}
 	})

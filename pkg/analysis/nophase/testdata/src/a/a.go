@@ -11,3 +11,9 @@ type NoSubPhaseTestStruct struct {
 	FooPhase *string `json:"fooPhase,omitempty"` // want "field FooPhase: phase fields are deprecated and conditions should be preferred, avoid phase like enum fields"
 
 }
+
+type SerializedPhaseTeststruct struct {
+	// +optional
+	FooField *string `json:"fooPhase,omitempty"` // want "field FooField: phase fields are deprecated and conditions should be preferred, avoid phase like enum fields"
+
+}
