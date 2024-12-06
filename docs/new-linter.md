@@ -132,7 +132,9 @@ Basic tests can be implemented with the Go analysis test framework.
 Create a `testdata` directory in the linter package and create a structure underneath.
 Individual test files must be placed under `src` and then a subdirectory for each package.
 
-Use one package per configuration input for the linter.
+If your linter has different configurations, e.g options to pass to the linter
+you will need one configuration per option. Use one package per configuration
+input for the linter.
 
 ```
 mylinter

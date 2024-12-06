@@ -154,6 +154,10 @@ lintersConfig:
     jsonTagRegex: "^[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$" # Provide a custom regex, which the json tag must match.
 ```
 
+## Nophase
+
+The `nophase` linter checks that the fields in the API types don't contain a 'Phase', or any field which contains 'Phase' as a substring, e.g MachinePhase.
+
 ## OptionalOrRequired
 
 The `optionalorrequired` linter checks that all fields in the API types are either optional or required, and are marked explicitly as such.
