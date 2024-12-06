@@ -32,6 +32,7 @@ var _ = Describe("Registry", func() {
 				"jsontags",
 				"optionalorrequired",
 				"requiredfields",
+				"statussubresource",
 			))
 		})
 	})
