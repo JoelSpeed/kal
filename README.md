@@ -201,6 +201,20 @@ It will suggest to remove the pointer from the field, and update the `json` tag 
 If you prefer not to suggest fixes for pointers in required fields, you can change the `pointerPolicy` to `Warn`.
 The linter will then only suggest to remove the `omitempty` value from the `json` tag.
 
+## StatusSubresource
+
+The `statussubresource` linter checks that the status subresource is configured correctly for
+structs marked with the `kubebuilder:object:root:=true` marker. Correct configuration is that
+when there is a status field the `kubebuilder:subresource:status` marker is present on the struct
+OR when the `kubebuilder:subresource:status` marker is present on the struct there is a status field.
+
+This linter is not enabled by default as it is only applicable to CustomResourceDefinitions.
+
+### Fixes (via standalone binary only)
+
+In the case where there is a status field present but no `kubebuilder:subresource:status` marker, the
+linter will suggest adding the comment `// +kubebuilder:subresource:status` above the struct.
+
 # Contributing
 
 New linters can be added by following the [New Linter][new-linter] guide.

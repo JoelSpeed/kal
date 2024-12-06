@@ -7,6 +7,7 @@ import (
 	"github.com/JoelSpeed/kal/pkg/analysis/jsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/optionalorrequired"
 	"github.com/JoelSpeed/kal/pkg/analysis/requiredfields"
+	"github.com/JoelSpeed/kal/pkg/analysis/statussubresource"
 	"github.com/JoelSpeed/kal/pkg/config"
 	"golang.org/x/tools/go/analysis"
 
@@ -53,6 +54,7 @@ func NewRegistry() Registry {
 			jsontags.Initializer(),
 			optionalorrequired.Initializer(),
 			requiredfields.Initializer(),
+			statussubresource.Initializer(),
 		},
 	}
 }
