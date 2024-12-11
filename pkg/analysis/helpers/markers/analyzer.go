@@ -138,7 +138,7 @@ func extractStructMarkers(decl *ast.GenDecl, sTyp *ast.StructType, results *mark
 
 	if decl.Doc != nil {
 		for _, comment := range decl.Doc.List {
-			if marker := extractMarker(comment); marker.Value != "" {
+			if marker := extractMarker(comment); marker.Identifier != "" {
 				structMarkers.Insert(marker)
 			}
 		}
@@ -158,7 +158,7 @@ func extractStructMarkers(decl *ast.GenDecl, sTyp *ast.StructType, results *mark
 		fieldMarkers := NewMarkerSet()
 
 		for _, comment := range field.Doc.List {
-			if marker := extractMarker(comment); marker.Value != "" {
+			if marker := extractMarker(comment); marker.Identifier != "" {
 				fieldMarkers.Insert(marker)
 			}
 		}
@@ -173,18 +173,80 @@ func extractMarker(comment *ast.Comment) Marker {
 		return Marker{}
 	}
 
+	markerContent := strings.TrimPrefix(comment.Text, "// +")
+	id, expressions := extractMarkerIdAndExpressions(markerContent)
+
 	return Marker{
-		Value:      strings.TrimPrefix(comment.Text, "// +"),
-		RawComment: comment.Text,
-		Pos:        comment.Pos(),
-		End:        comment.End(),
+		Identifier:  id,
+		Expressions: expressions,
+		RawComment:  comment.Text,
+		Pos:         comment.Pos(),
+		End:         comment.End(),
 	}
+}
+
+func extractMarkerIdAndExpressions(marker string) (string, map[string]string) {
+	// if there is only a single "=" split on the equal sign and trim any
+	// dangling ":" characters.
+	if strings.Count(marker, "=") == 1 {
+		splits := strings.Split(marker, "=")
+		// Trim any dangling ":" characters on the identifier to handle
+		// cases like +kubebuilder:object:root:=true
+		identifier := strings.TrimSuffix(splits[0], ":")
+
+		// If there is a single "=" sign that means the left side of the
+		// marker is the identifier and there is no real expression identifier.
+		// For now, set the expression identifier as an empty string.
+		// TODO: Is this sufficient? Can this be improved?
+		expressions := map[string]string{"": splits[1]}
+		return identifier, expressions
+	}
+
+	// split on :
+	separators := strings.Split(marker, ":")
+	// Means no : characters. Probably a marker like +default, +optional, etc.
+	if len(separators) == 1 {
+		return separators[0], map[string]string{}
+	}
+
+	identifier := ""
+	expressions := map[string]string{}
+	for _, item := range separators {
+		// Not an expression
+		if strings.Count(item, "=") == 0 {
+			if identifier == "" {
+				identifier = item
+				continue
+			}
+			identifier = strings.Join([]string{identifier, item}, ":")
+			continue
+		}
+
+		// not a chained expression, split on first "="
+		if strings.Count(item, ",") == 0 {
+			exps := strings.SplitN(item, "=", 2)
+			expressions[exps[0]] = exps[1]
+			continue
+		}
+
+		// chained expression, split on "," first
+		chainedExpressions := strings.Split(item, ",")
+		for _, chainedExpression := range chainedExpressions {
+			exps := strings.SplitN(chainedExpression, "=", 2)
+			expressions[exps[0]] = exps[1]
+		}
+	}
+
+	return identifier, expressions
 }
 
 // Marker represents a marker extracted from a comment on a declaration.
 type Marker struct {
-	// Value is the value of the marker once the leading comment and '+' are trimmed.
-	Value string
+	// Identifier is the value of the marker once the leading comment, '+', and expressions are trimmed.
+	Identifier string
+
+	// Expressions are the set of expressions that have been specified for the marker
+	Expressions map[string]string
 
 	// RawComment is the raw comment line, unfiltered.
 	RawComment string
@@ -217,7 +279,7 @@ func NewMarkerSet(markers ...Marker) MarkerSet {
 // will take precedence, no duplication checks are implemented.
 func (ms MarkerSet) Insert(markers ...Marker) {
 	for _, marker := range markers {
-		ms[marker.Value] = marker
+		ms[marker.Identifier] = marker
 	}
 }
 
