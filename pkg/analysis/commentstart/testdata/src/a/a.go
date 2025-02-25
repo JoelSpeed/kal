@@ -8,6 +8,20 @@ type CommentStartTestStruct struct {
 	Ignored       string `json:"-"`
 	Hyphen        string `json:"-,"` // want "field Hyphen is missing godoc comment"
 
+	AnonymousStruct struct { // want "field AnonymousStruct is missing godoc comment"
+		NoComment string `json:"noComment"` // want "field NoComment is missing godoc comment"
+	} `json:"anonymousStruct"`
+
+	AnonymousStructInlineJSONTag struct {
+		NoComment string `json:"noComment"` // want "field NoComment is missing godoc comment"
+	} `json:",inline"`
+
+	IgnoredAnonymousStruct struct {
+		NoComment string `json:"noComment"`
+	} `json:"-"`
+
+	StructForInlineField `json:",inline"`
+
 	// IncorrectStartComment is a field with an incorrect start to the comment. // want "godoc for field IncorrectStartComment should start with 'incorrectStartComment ...'"
 	IncorrectStartComment string `json:"incorrectStartComment"`
 
@@ -34,3 +48,17 @@ type CommentStartTestStruct struct {
 
 // DoNothing is used to check that the analyser doesn't report on methods.
 func (CommentStartTestStruct) DoNothing() {}
+
+type StructForInlineField struct {
+	NoComment string `json:"noComment"` // want "field NoComment is missing godoc comment"
+}
+
+type unexportedStruct struct {
+	NoComment string `json:"noComment"` // want "field NoComment is missing godoc comment"
+}
+
+func FunctionWithStructs() {
+	type InaccessibleStruct struct {
+		NoComment string `json:"noComment"`
+	}
+}

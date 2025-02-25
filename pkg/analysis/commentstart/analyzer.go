@@ -42,43 +42,63 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	// Filter to structs so that we can iterate over fields in a struct.
 	nodeFilter := []ast.Node{
-		(*ast.StructType)(nil),
+		(*ast.Field)(nil),
 	}
 
-	inspect.Preorder(nodeFilter, func(n ast.Node) {
-		sTyp, ok := n.(*ast.StructType)
+	inspect.WithStack(nodeFilter, func(n ast.Node, push bool, stack []ast.Node) (proceed bool) {
+		if !push {
+			return false
+		}
+
+		if len(stack) < 2 {
+			return true
+		}
+
+		// The 0th node in the stack is the *ast.File.
+		// The 1st node in the stack is the *ast.GenDecl.
+		decl, ok := stack[1].(*ast.GenDecl)
 		if !ok {
-			return
+			return false
 		}
 
-		if sTyp.Fields == nil {
-			return
+		if decl.Tok != token.TYPE {
+			// Returning false here means we won't inspect non-type declarations (e.g. var, const, import).
+			return false
 		}
 
-		for _, field := range sTyp.Fields.List {
-			checkField(pass, field, jsonTags)
+		field, ok := n.(*ast.Field)
+		if !ok {
+			return true
 		}
+
+		return checkField(pass, field, jsonTags)
 	})
 
 	return nil, nil //nolint:nilnil
 }
 
-func checkField(pass *analysis.Pass, field *ast.Field, jsonTags extractjsontags.StructFieldTags) {
+func checkField(pass *analysis.Pass, field *ast.Field, jsonTags extractjsontags.StructFieldTags) (proceed bool) {
 	if field == nil || len(field.Names) == 0 {
-		return
+		// Returning false here means we don't inspect inline fields.
+		// Types of inline fields will be inspected on its declaration.
+		return false
+	}
+
+	tagInfo := jsonTags.FieldTags(field)
+	if tagInfo.Ignored {
+		// Returning false here means we won't inspect the children of an ignored field.
+		return false
+	}
+
+	if tagInfo.Name == "" {
+		return true
 	}
 
 	fieldName := field.Names[0].Name
 
-	tagInfo := jsonTags.FieldTags(field)
-
-	if tagInfo.Name == "" {
-		return
-	}
-
 	if field.Doc == nil {
 		pass.Reportf(field.Pos(), "field %s is missing godoc comment", fieldName)
-		return
+		return true
 	}
 
 	firstLine := field.Doc.List[0]
@@ -105,4 +125,6 @@ func checkField(pass *analysis.Pass, field *ast.Field, jsonTags extractjsontags.
 			pass.Reportf(field.Doc.List[0].Pos(), "godoc for field %s should start with '%s ...'", fieldName, tagInfo.Name)
 		}
 	}
+
+	return true
 }
