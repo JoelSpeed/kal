@@ -18,6 +18,11 @@ type JSONTagTestStruct struct {
 	JSONTagWithID        string `json:"jsonTagWithID"`
 	JSONTagWithTTL       string `json:"jsonTagWithTTL"`
 	JSONTagWithGiB       string `json:"jsonTagWithGiB"`
+	Ignored              string `json:"-"`
+
+	IgnoredAnonymousStruct struct {
+		A string `json:""` // want "field A has empty json tag"
+	} `json:"-"`
 
 	A `json:",inline"`
 	B `json:"bar,omitempty"`

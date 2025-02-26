@@ -104,6 +104,10 @@ func (a *analyzer) checkField(pass *analysis.Pass, field *ast.Field, jsonTags ex
 		return
 	}
 
+	if tagInfo.Ignored {
+		return
+	}
+
 	if tagInfo.Name == "" {
 		pass.Reportf(field.Pos(), "%s has empty json tag", prefix)
 		return
