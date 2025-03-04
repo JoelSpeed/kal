@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"go/types"
 	"strings"
 
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
@@ -49,8 +50,8 @@ func checkField(pass *analysis.Pass, field *ast.Field, tagInfo extractjsontags.F
 	var fieldName string
 	if len(field.Names) > 0 {
 		fieldName = field.Names[0].Name
-	} else if ident, ok := field.Type.(*ast.Ident); ok {
-		fieldName = ident.Name
+	} else {
+		fieldName = types.ExprString(field.Type)
 	}
 
 	if field.Doc == nil {

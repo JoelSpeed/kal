@@ -1,5 +1,7 @@
 package a
 
+import "a/pkg"
+
 type CommentStartTestStruct struct {
 	NoJSONTag     string
 	EmptyJSONTag  string `json:""`
@@ -23,6 +25,12 @@ type CommentStartTestStruct struct {
 	StructForInlineField `json:",inline"`
 
 	A `json:"a"` // want "field A is missing godoc comment"
+
+	PkgA pkg.A `json:"pkgA"` // want "field PkgA is missing godoc comment"
+
+	pkg.Embedded `json:"embedded"` // want "field pkg.Embedded is missing godoc comment"
+
+	*pkg.EmbeddedPointer `json:"embeddedPointer"` // want "field \\*pkg.EmbeddedPointer is missing godoc comment"
 
 	// IncorrectStartComment is a field with an incorrect start to the comment. // want "godoc for field IncorrectStartComment should start with 'incorrectStartComment ...'"
 	IncorrectStartComment string `json:"incorrectStartComment"`
