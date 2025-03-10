@@ -10,6 +10,7 @@ import (
 	"github.com/JoelSpeed/kal/pkg/analysis/maxlength"
 	"github.com/JoelSpeed/kal/pkg/analysis/nobools"
 	"github.com/JoelSpeed/kal/pkg/analysis/nofloats"
+	"github.com/JoelSpeed/kal/pkg/analysis/nomaps"
 	"github.com/JoelSpeed/kal/pkg/analysis/nophase"
 	"github.com/JoelSpeed/kal/pkg/analysis/optionalorrequired"
 	"github.com/JoelSpeed/kal/pkg/analysis/requiredfields"
@@ -63,6 +64,7 @@ func NewRegistry() Registry {
 			maxlength.Initializer(),
 			nobools.Initializer(),
 			nofloats.Initializer(),
+			nomaps.Initializer(),
 			nophase.Initializer(),
 			optionalorrequired.Initializer(),
 			requiredfields.Initializer(),
