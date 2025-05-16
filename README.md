@@ -328,6 +328,10 @@ It will suggest to remove the pointer from the field, and update the `json` tag 
 If you prefer not to suggest fixes for pointers in required fields, you can change the `pointerPolicy` to `Warn`.
 The linter will then only suggest to remove the `omitempty` value from the `json` tag.
 
+## SSATags
+
+TODO
+
 ## StatusOptional
 
 The `statusoptional` linter checks that all first-level children fields within a status struct are marked as optional.
