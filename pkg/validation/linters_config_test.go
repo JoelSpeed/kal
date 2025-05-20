@@ -221,6 +221,122 @@ var _ = Describe("LintersConfig", func() {
 			expectedErr: `lintersConfig.nomaps.policy: Invalid value: "invalid": invalid value, must be one of "Enforce", "AllowStringToStringMaps", "Ignore" or omitted`,
 		}),
 
+		// OptionalFieldsConfig validation
+		Entry("With a valid OptionalFieldsConfig", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Preference: "",
+						Policy:     "",
+					},
+					OmitEmpty: config.OptionalFieldsOmitEmpty{
+						Policy: "",
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid OptionalFieldsConfig: Pointer Preference Always", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Preference: config.OptionalFieldsPointerPreferenceAlways,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid OptionalFieldsConfig: Pointer Preference WhenRequired", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Preference: config.OptionalFieldsPointerPreferenceWhenRequired,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With an invalid OptionalFieldsConfig: Pointer Preference", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Preference: "invalid",
+					},
+				},
+			},
+			expectedErr: "lintersConfig.optionalFields.pointers.preference: Invalid value: \"invalid\": invalid value, must be one of \"Always\", \"WhenRequired\" or omitted",
+		}),
+		Entry("With a valid OptionalFieldsConfig: Pointer Policy SuggestFix", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Policy: config.OptionalFieldsPointerPolicySuggestFix,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid OptionalFieldsConfig: Pointer Policy Warn", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Policy: config.OptionalFieldsPointerPolicyWarn,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With an invalid OptionalFieldsConfig: Pointer Policy", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					Pointers: config.OptionalFieldsPointers{
+						Policy: "invalid",
+					},
+				},
+			},
+			expectedErr: "lintersConfig.optionalFields.pointers.policy: Invalid value: \"invalid\": invalid value, must be one of \"SuggestFix\", \"Warn\" or omitted",
+		}),
+		Entry("With a valid OptionalFieldsConfig: OmitEmpty Policy Ignore", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					OmitEmpty: config.OptionalFieldsOmitEmpty{
+						Policy: config.OptionalFieldsOmitEmptyPolicyIgnore,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid OptionalFieldsConfig: OmitEmpty Policy Warn", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					OmitEmpty: config.OptionalFieldsOmitEmpty{
+						Policy: config.OptionalFieldsOmitEmptyPolicyWarn,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid OptionalFieldsConfig: OmitEmpty Policy SuggestFix", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					OmitEmpty: config.OptionalFieldsOmitEmpty{
+						Policy: config.OptionalFieldsOmitEmptyPolicySuggestFix,
+					},
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With an invalid OptionalFieldsConfig: OmitEmpty Policy", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				OptionalFields: config.OptionalFieldsConfig{
+					OmitEmpty: config.OptionalFieldsOmitEmpty{
+						Policy: "invalid",
+					},
+				},
+			},
+			expectedErr: "lintersConfig.optionalFields.omitEmpty.policy: Invalid value: \"invalid\": invalid value, must be one of \"Ignore\", \"Warn\", \"SuggestFix\" or omitted",
+		}),
+
 		// OptionalOrRequiredConfig validation
 		Entry("With a valid OptionalOrRequiredConfig", validateLintersConfigTableInput{
 			config: config.LintersConfig{

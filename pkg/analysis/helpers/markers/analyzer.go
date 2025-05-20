@@ -385,6 +385,13 @@ func (ms MarkerSet) HasWithExpressions(identifier string, expressions map[string
 	return false
 }
 
+// Get returns the markers associated with the given identifier.
+// If no markers are found, an empty slice is returned.
+// The returned slice may contain multiple markers with the same identifier.
+func (ms MarkerSet) Get(identifier string) []Marker {
+	return ms[identifier]
+}
+
 // UnsortedList returns a list of the markers, in no particular order.
 func (ms MarkerSet) UnsortedList() []Marker {
 	markers := []Marker{}

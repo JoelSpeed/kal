@@ -32,6 +32,7 @@ func ValidateLintersConfig(lc config.LintersConfig, fldPath *field.Path) field.E
 	fieldErrors = append(fieldErrors, validateConditionsConfig(lc.Conditions, fldPath.Child("conditions"))...)
 	fieldErrors = append(fieldErrors, validateJSONTagsConfig(lc.JSONTags, fldPath.Child("jsonTags"))...)
 	fieldErrors = append(fieldErrors, validateNoMapsConfig(lc.NoMaps, fldPath.Child("nomaps"))...)
+	fieldErrors = append(fieldErrors, validateOptionalFieldsConfig(lc.OptionalFields, fldPath.Child("optionalFields"))...)
 	fieldErrors = append(fieldErrors, validateOptionalOrRequiredConfig(lc.OptionalOrRequired, fldPath.Child("optionalOrRequired"))...)
 	fieldErrors = append(fieldErrors, validateRequiredFieldsConfig(lc.RequiredFields, fldPath.Child("requiredFields"))...)
 	fieldErrors = append(fieldErrors, validateStatusOptionalConfig(lc.StatusOptional, fldPath.Child("statusOptional"))...)
@@ -86,6 +87,48 @@ func validateNoMapsConfig(nmc config.NoMapsConfig, fldPath *field.Path) field.Er
 		// Valid values
 	default:
 		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("policy"), nmc.Policy, fmt.Sprintf("invalid value, must be one of %q, %q, %q or omitted", config.NoMapsEnforce, config.NoMapsAllowStringToStringMaps, config.NoMapsIgnore)))
+	}
+
+	return fieldErrors
+}
+
+// validateOptionalFieldsConfig is used to validate the configuration in the config.OptionalFieldsConfig struct.
+func validateOptionalFieldsConfig(ofc config.OptionalFieldsConfig, fldPath *field.Path) field.ErrorList {
+	fieldErrors := field.ErrorList{}
+
+	fieldErrors = append(fieldErrors, validateOptionFieldsPointers(ofc.Pointers, fldPath.Child("pointers"))...)
+	fieldErrors = append(fieldErrors, validateOptionFieldsOmitEmpty(ofc.OmitEmpty, fldPath.Child("omitEmpty"))...)
+
+	return fieldErrors
+}
+
+// validateOptionFieldsPointers is used to validate the configuration in the config.OptionalFieldsPointers struct.
+func validateOptionFieldsPointers(opc config.OptionalFieldsPointers, fldPath *field.Path) field.ErrorList {
+	fieldErrors := field.ErrorList{}
+
+	switch opc.Preference {
+	case "", config.OptionalFieldsPointerPreferenceAlways, config.OptionalFieldsPointerPreferenceWhenRequired:
+	default:
+		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("preference"), opc.Preference, fmt.Sprintf("invalid value, must be one of %q, %q or omitted", config.OptionalFieldsPointerPreferenceAlways, config.OptionalFieldsPointerPreferenceWhenRequired)))
+	}
+
+	switch opc.Policy {
+	case "", config.OptionalFieldsPointerPolicySuggestFix, config.OptionalFieldsPointerPolicyWarn:
+	default:
+		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("policy"), opc.Policy, fmt.Sprintf("invalid value, must be one of %q, %q or omitted", config.OptionalFieldsPointerPolicySuggestFix, config.OptionalFieldsPointerPolicyWarn)))
+	}
+
+	return fieldErrors
+}
+
+// validateOptionFieldsOmitEmpty is used to validate the configuration in the config.OptionalFieldsOmitEmpty struct.
+func validateOptionFieldsOmitEmpty(oec config.OptionalFieldsOmitEmpty, fldPath *field.Path) field.ErrorList {
+	fieldErrors := field.ErrorList{}
+
+	switch oec.Policy {
+	case "", config.OptionalFieldsOmitEmptyPolicyIgnore, config.OptionalFieldsOmitEmptyPolicyWarn, config.OptionalFieldsOmitEmptyPolicySuggestFix:
+	default:
+		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("policy"), oec.Policy, fmt.Sprintf("invalid value, must be one of %q, %q, %q or omitted", config.OptionalFieldsOmitEmptyPolicyIgnore, config.OptionalFieldsOmitEmptyPolicyWarn, config.OptionalFieldsOmitEmptyPolicySuggestFix)))
 	}
 
 	return fieldErrors
