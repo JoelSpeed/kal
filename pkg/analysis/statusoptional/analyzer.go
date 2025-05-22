@@ -85,10 +85,6 @@ func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 		}
 
 		statusStructType := getStructFromField(pass, field)
-		if statusStructType == nil {
-			return
-		}
-
 		a.checkStatusStruct(pass, statusStructType, markersAccess, jsonTags)
 	})
 
@@ -96,7 +92,7 @@ func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 }
 
 func (a *analyzer) checkStatusStruct(pass *analysis.Pass, statusType *ast.StructType, markersAccess markershelper.Markers, jsonTags extractjsontags.StructFieldTags) {
-	if statusType.Fields == nil || statusType.Fields.List == nil {
+	if statusType == nil || statusType.Fields == nil || statusType.Fields.List == nil {
 		return
 	}
 
